@@ -65,11 +65,11 @@ class FrontendController extends Controller
     }
 
     /**
-     * Switch Frontend Language (en, hi, mr, bn)
+     * Switch Frontend Language (strictly Hindi 'hi' and Marathi 'mr' only)
      */
     public function setLanguage(Request $request, string $locale)
     {
-        $allowed = ['en', 'hi', 'mr', 'bn'];
+        $allowed = ['hi', 'mr'];
         if (in_array($locale, $allowed, true)) {
             session(['app_locale' => $locale]);
             App::setLocale($locale);
@@ -633,11 +633,62 @@ class FrontendController extends Controller
     }
 
     /**
-     * Live Token Tracker Lookup (Direct search)
+     * Live Token Tracker Lookup (Direct search & real-time AJAX response)
      */
     public function trackToken(Request $request)
     {
-        $query = trim($request->query('query', ''));
+        $query = trim($request->query('query', $request->query('track_query', '')));
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $hospital = $this->getActiveHospital();
+            if (! $hospital || empty($query)) {
+                return response()->json(['success' => true, 'count' => 0, 'data' => []]);
+            }
+
+            $trackedAppointments = Appointment::where('hospital_id', $hospital->id)
+                ->where(function ($q) use ($query) {
+                    if (is_numeric($query)) {
+                        $q->where('token_number', (int) $query)
+                            ->orWhereHas('patient', function ($pq) use ($query) {
+                                $pq->where('phone', 'like', "%{$query}%");
+                            });
+                    } else {
+                        $q->whereHas('patient', function ($pq) use ($query) {
+                            $pq->where('phone', 'like', "%{$query}%")
+                                ->orWhere('name', 'like', "%{$query}%");
+                        });
+                    }
+                })
+                ->with(['doctor', 'patient', 'branch'])
+                ->orderBy('appointment_date', 'desc')
+                ->limit(10)
+                ->get()
+                ->map(function ($app) {
+                    return [
+                        'token_number' => $app->token_number,
+                        'token_display' => 'Token #'.$app->token_number,
+                        'patient_name' => $app->patient?->name,
+                        'doctor_name' => $app->doctor?->name,
+                        'branch_name' => $app->branch?->name,
+                        'appointment_date' => Carbon::parse($app->appointment_date)->format('d M, Y'),
+                        'appointment_time' => Carbon::parse($app->appointment_time)->format('h:i A'),
+                        'status' => ucfirst($app->status),
+                        'status_badge' => match ($app->status) {
+                            'completed' => 'bg-success',
+                            'in_consultation', 'in_progress' => 'bg-warning text-dark',
+                            'checked_in' => 'bg-primary',
+                            'cancelled' => 'bg-danger',
+                            default => 'bg-info'
+                        },
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'count' => $trackedAppointments->count(),
+                'data' => $trackedAppointments,
+            ]);
+        }
 
         return redirect()->route('frontend.home', [
             'track_query' => $query,

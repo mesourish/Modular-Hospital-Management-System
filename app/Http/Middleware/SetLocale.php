@@ -14,13 +14,15 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $allowed = ['en', 'hi', 'mr', 'bn'];
-        $locale = $request->get('lang') ?? session('app_locale', 'en');
+        $allowed = ['hi', 'mr'];
+        $locale = $request->get('lang') ?? session('app_locale', 'hi');
 
-        if (in_array($locale, $allowed, true)) {
-            session(['app_locale' => $locale]);
-            App::setLocale($locale);
+        if (! in_array($locale, $allowed, true)) {
+            $locale = 'hi';
         }
+
+        session(['app_locale' => $locale]);
+        App::setLocale($locale);
 
         return $next($request);
     }

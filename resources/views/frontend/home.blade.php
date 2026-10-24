@@ -224,9 +224,103 @@
                         </div>
 
                         <div class="mt-auto">
-                            <a href="{{ route('frontend.packages') }}#pkg-{{ $pkg->id }}" class="btn btn-outline-primary btn-sm w-100 fw-semibold">
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#homeBookPkgModal{{ $pkg->id }}">
                                 <i class="bx bx-calendar-plus me-1"></i> {{ __('Book Checkup Package') }}
-                            </a>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1-Click Package Booking Modal -->
+                <div class="modal fade text-start" id="homeBookPkgModal{{ $pkg->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('portal.book_package') }}">
+                                @csrf
+                                <input type="hidden" name="package_id" value="{{ $pkg->id }}">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title font-size-16 text-white">
+                                        <i class="bx bx-package me-1"></i> {{ __('Book Checkup Package') }}: {{ $pkg->name }}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-4 text-dark">
+                                    <div class="p-3 bg-light rounded-3 mb-3 font-size-13">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted">{{ __('Package Price:') }}</span>
+                                            <strong class="text-success font-size-15">{{ $pkg->formatted_discounted_price }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span class="text-muted">{{ __('Diagnostic Tests:') }}</span>
+                                            <strong>{{ $pkg->tests_count }} {{ __('Parameters & Diagnostic Tests') }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">{{ __('Fasting Rule:') }}</span>
+                                            <span>{{ $pkg->fasting_required ? $pkg->fasting_hours . ' ' . __('Hours Overnight Fasting') : __('No Fasting') }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Select Hospital Branch *') }}</label>
+                                        <select name="branch_id" class="form-select" required>
+                                            @if($pkg->branch)
+                                                <option value="{{ $pkg->branch_id }}" selected>{{ $pkg->branch->name }} ({{ $pkg->branch->city }})</option>
+                                            @else
+                                                @foreach($branches as $b)
+                                                    <option value="{{ $b->id }}">{{ $b->name }} ({{ $b->city }})</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Patient Name') }} *</label>
+                                        <input type="text" name="patient_name" class="form-control" placeholder="{{ __('Full name of person undergoing checkup') }}" required>
+                                    </div>
+
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Phone Number') }} *</label>
+                                            <input type="tel" name="patient_phone" class="form-control" placeholder="{{ __('10-digit mobile number') }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Email Address') }}</label>
+                                            <input type="email" name="patient_email" class="form-control" placeholder="name@example.com">
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6">
+                                            <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Age Group') }} *</label>
+                                            <input type="number" name="patient_age" class="form-control" placeholder="e.g. 35" min="1" max="120" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Gender') }} *</label>
+                                            <select name="patient_gender" class="form-select" required>
+                                                <option value="male">{{ __('Male') }}</option>
+                                                <option value="female">{{ __('Female') }}</option>
+                                                <option value="other">{{ __('Other') }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Preferred Checkup Date *') }}</label>
+                                        <input type="date" name="preferred_date" class="form-control" min="{{ date('Y-m-d') }}" value="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label class="form-label font-size-12 fw-semibold mb-1">{{ __('Special Health Notes / Medical Conditions') }}</label>
+                                        <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Diabetics needing morning fast token, wheelchair assistance required..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bx bx-check me-1"></i> {{ __('Confirm & Book Package') }}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -245,13 +339,13 @@
         <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
             <div>
                 <span class="badge bg-info-subtle text-info font-size-12 px-3 py-1 mb-2 fw-bold text-uppercase">
-                    <i class="bx bx-user-check me-1"></i> Clinical Board & OPD
+                    <i class="bx bx-user-check me-1"></i> {{ __('Clinical Board & OPD') }}
                 </span>
-                <h2 class="fw-bold text-dark mb-0">{{ __('Our Doctors') }} • Doctor OPD Duty Schedules & Fees</h2>
-                <p class="text-muted font-size-14 mb-0">Consult India's top surgical and medical super-specialists</p>
+                <h2 class="fw-bold text-dark mb-0">{{ __('Our Doctors') }} • {{ __('Doctor OPD Duty Schedules & Fees') }}</h2>
+                <p class="text-muted font-size-14 mb-0">{{ __("Consult India's top surgical and medical super-specialists") }}</p>
             </div>
             <a href="{{ route('frontend.doctors') }}" class="btn btn-outline-primary btn-sm fw-semibold">
-                View All Specialists <i class="bx bx-right-arrow-alt align-middle ms-1"></i>
+                {{ __('View All Specialists') }} <i class="bx bx-right-arrow-alt align-middle ms-1"></i>
             </a>
         </div>
 
@@ -265,7 +359,7 @@
                             </div>
                             <div>
                                 <h6 class="fw-bold text-dark mb-1 font-size-15">{{ $doc->doctor_name }}</h6>
-                                <span class="badge bg-light text-primary font-size-11">{{ $doc->department?->name ?? 'Specialist' }}</span>
+                                <span class="badge bg-light text-primary font-size-11">{{ $doc->department?->name ?? __('Specialist OPD') }}</span>
                             </div>
                         </div>
 
@@ -286,7 +380,7 @@
                                 <span class="text-dark">{{ $doc->opd_days }}</span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span class="text-muted">{{ __('Rating') }}:</span>
+                                <span class="text-muted">{{ __('Patient Rating') }}:</span>
                                 <span class="text-warning fw-bold">
                                     <i class="mdi mdi-star"></i> {{ $doc->average_rating }} ({{ $doc->testimonials_count }})
                                 </span>
@@ -302,59 +396,62 @@
                 </div>
             @empty
                 <div class="col-12 text-center py-4 text-muted">
-                    <p>No active doctor charts available.</p>
+                    <p>{{ __('No active doctor charts available.') }}</p>
                 </div>
             @endforelse
         </div>
     </div>
 </section>
 
-<!-- Live OPD Token Tracker Widget -->
+<!-- Live OPD Token Tracker Widget with Real-Time Search -->
 <section class="py-5" id="track-status" style="background: linear-gradient(135deg, #1f2747 0%, #2a3042 100%); color: #ffffff;">
     <div class="container py-3">
         <div class="row align-items-center g-4">
             <div class="col-lg-5">
                 <span class="badge bg-success-subtle text-success font-size-12 px-3 py-1 mb-2 fw-bold text-uppercase">
-                    <i class="bx bx-radar me-1"></i> Real-Time Queue Tracker
+                    <i class="bx bx-radar me-1"></i> {{ __('Real-Time Queue Tracker') }}
                 </span>
-                <h2 class="fw-bold text-white mb-2">Live Token Status Tracker</h2>
+                <h2 class="fw-bold text-white mb-2">{{ __('Live Token Status Tracker') }}</h2>
                 <p class="text-light opacity-90 font-size-14 mb-4">
-                    Check your live appointment position in queue, assigned chamber room, or prescription status using your token or registered phone number.
+                    {{ __('Check your live appointment position in queue, assigned chamber room, or prescription status using your token or registered phone number.') }}
                 </p>
-                <form action="{{ route('frontend.home') }}#track-status" method="GET">
+                <form id="tokenTrackForm" action="{{ route('frontend.home') }}#track-status" method="GET">
                     <div class="input-group mb-3">
-                        <input type="text" name="track_query" class="form-control" placeholder="Enter Token (e.g. 1) or Mobile Phone" value="{{ $trackingQuery }}">
+                        <input type="text" id="tokenTrackInput" name="track_query" class="form-control" placeholder="{{ __('Enter Token (e.g. 1) or Mobile Phone') }}" value="{{ $trackingQuery }}" autocomplete="off">
                         <button class="btn btn-warning fw-semibold px-4" type="submit">
-                            <i class="bx bx-search-alt me-1"></i> Track
+                            <i class="bx bx-search-alt me-1"></i> {{ __('Track') }}
                         </button>
                     </div>
+                    <small class="text-white-50 font-size-11">
+                        <i class="bx bx-info-circle me-1"></i> {{ __('Instant real-time search active. Type token # or phone number above.') }}
+                    </small>
                 </form>
             </div>
 
-            <div class="col-lg-7">
+            <div class="col-lg-7" id="tokenResultsContainer">
                 @if($trackedAppointments->count() > 0)
                     <div class="card border-0 shadow-lg rounded-3 bg-white text-dark">
                         <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0 fw-bold text-dark">Matching Tokens ({{ $trackedAppointments->count() }})</h6>
-                            <span class="badge bg-success">Live Status</span>
+                            <h6 class="mb-0 fw-bold text-dark">{{ __('Matching Tokens') }} ({{ $trackedAppointments->count() }})</h6>
+                            <span class="badge bg-success"><i class="bx bx-pulse me-1"></i> {{ __('Live Status') }}</span>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0 font-size-13">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Token</th>
-                                            <th>Patient</th>
-                                            <th>Doctor & Chamber</th>
-                                            <th>Date & Time</th>
-                                            <th>Status</th>
+                                            <th>{{ __('Token') }}</th>
+                                            <th>{{ __('Patient') }}</th>
+                                            <th>{{ __('Doctor & Chamber') }}</th>
+                                            <th>{{ __('Date & Time') }}</th>
+                                            <th>{{ __('Status') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($trackedAppointments as $tApp)
                                             <tr>
                                                 <td><strong class="text-primary font-monospace font-size-14">Token #{{ $tApp->token_number }}</strong></td>
-                                                <td>{{ $tApp->patient?->name }}</td>
+                                                <td><strong>{{ $tApp->patient?->name }}</strong></td>
                                                 <td>
                                                     <strong>{{ $tApp->doctor?->name }}</strong>
                                                     <small class="text-muted d-block">{{ $tApp->branch?->name }}</small>
@@ -375,8 +472,8 @@
                 @else
                     <div class="p-4 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(255, 255, 255, 0.2);">
                         <i class="bx bx-search-alt text-warning font-size-36 d-block mb-2"></i>
-                        <h6 class="text-white">Track Your OPD Appointment</h6>
-                        <p class="text-light opacity-75 font-size-13 mb-0">Enter your registered mobile phone or token number above to view real-time status.</p>
+                        <h6 class="text-white">{{ __('Track Your OPD Appointment') }}</h6>
+                        <p class="text-light opacity-75 font-size-13 mb-0">{{ __('Enter your registered mobile phone or token number above to view real-time status.') }}</p>
                     </div>
                 @endif
             </div>
@@ -432,3 +529,84 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('tokenTrackInput');
+    const container = document.getElementById('tokenResultsContainer');
+    let debounceTimer = null;
+
+    if (input && container) {
+        input.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const val = this.value.trim();
+            if (val.length === 0) {
+                return;
+            }
+            debounceTimer = setTimeout(() => {
+                fetch(`{{ route('portal.track_token') }}?query=${encodeURIComponent(val)}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.data && res.data.length > 0) {
+                        let html = `
+                        <div class="card border-0 shadow-lg rounded-3 bg-white text-dark">
+                            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold text-dark">{{ __('Matching Tokens') }} (${res.data.length})</h6>
+                                <span class="badge bg-success"><i class="bx bx-pulse me-1"></i> {{ __('Live Status') }}</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0 font-size-13">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>{{ __('Token') }}</th>
+                                                <th>{{ __('Patient') }}</th>
+                                                <th>{{ __('Doctor & Chamber') }}</th>
+                                                <th>{{ __('Date & Time') }}</th>
+                                                <th>{{ __('Status') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                        res.data.forEach(item => {
+                            html += `
+                                <tr>
+                                    <td><strong class="text-primary font-monospace font-size-14">${item.token_display}</strong></td>
+                                    <td><strong>${item.patient_name || '-'}</strong></td>
+                                    <td>
+                                        <strong>${item.doctor_name || '-'}</strong>
+                                        <small class="text-muted d-block">${item.branch_name || ''}</small>
+                                    </td>
+                                    <td>${item.appointment_date} at ${item.appointment_time}</td>
+                                    <td>
+                                        <span class="badge ${item.status_badge} px-2 py-1">
+                                            ${item.status}
+                                        </span>
+                                    </td>
+                                </tr>`;
+                        });
+                        html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                        <div class="p-4 rounded-3 text-center" style="background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(255, 255, 255, 0.2);">
+                            <i class="bx bx-error-circle text-warning font-size-36 d-block mb-2"></i>
+                            <h6 class="text-white">{{ __('Track Your OPD Appointment') }}</h6>
+                            <p class="text-light opacity-75 font-size-13 mb-0">{{ __('No matching tokens found for this query.') }}</p>
+                        </div>`;
+                    }
+                })
+                .catch(err => console.error('Tracking fetch error:', err));
+            }, 300);
+        });
+    }
+});
+</script>
+@endpush
