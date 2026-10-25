@@ -45,17 +45,15 @@ To protect the `main` branch from direct pushes or unreviewed changes, maintaine
 3. In **Branch name pattern**, enter: `main`.
 4. Enable the following protections:
    - ✅ **Require a pull request before merging**:
-     - Check **Require approvals** (set minimum to at least `1`).
+     - *For teams*: Check **Require approvals** (set minimum to `1`).
+     - *For solo maintainers*: Leave **Require approvals** unchecked (or uncheck *Do not allow bypassing*), because GitHub disallows authors from approving their own PRs.
      - Check **Dismiss stale pull request approvals when new commits are pushed**.
-     - Check **Require review from Code Owners** (optional).
    - ✅ **Require status checks to pass before merging**:
      - Check **Require branches to be up to date before merging**.
-     - Search and select the CI status check: `test-and-lint` (from GitHub Actions).
+     - Ensure the CI status checks (`test-and-lint`) from GitHub Actions pass.
    - ✅ **Require conversation resolution before merging**:
-     - Ensures all code review comments and feedback are resolved.
-   - ✅ **Require linear history** (keeps clean Git commit history).
-   - ✅ **Do not allow bypassing the above settings**:
-     - Applies rules to administrators as well, ensuring no one accidentally force-pushes to `main`.
+     - Ensures all review comments and feedback threads are resolved.
+   - ✅ **Prevent accidental deletions & force-pushes**.
 5. Click **Create** or **Save changes**.
 6. Set the repository's **Default branch** to `develop` under **Settings** &rarr; **General** so all contributors automatically target `develop`.
 
