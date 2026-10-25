@@ -25,18 +25,18 @@ class FrontendAndApiTest extends TestCase
         $response = $this->get(route('frontend.home'));
         $response->assertStatus(200);
         $response->assertSee('Apollo Hospitals Healthcare Network');
-        $response->assertSee('Quick Appointment');
-        $response->assertSee('Featured Health Checkup Packages');
-        $response->assertSee('Our Doctors');
+        $response->assertSee(__('Quick Appointment'));
+        $response->assertSee(__('Featured Health Checkup Packages'));
+        $response->assertSee(__('Our Doctors'));
     }
 
     public function test_frontend_about_page_renders_successfully(): void
     {
         $response = $this->get(route('frontend.about'));
         $response->assertStatus(200);
-        $response->assertSee('NABH Accredited');
-        $response->assertSee('JCI Certified');
-        $response->assertSee('Clinical Excellence With Compassion');
+        $response->assertSee('NABH');
+        $response->assertSee('JCI');
+        $response->assertSee(__('Clinical Excellence'));
     }
 
     public function test_frontend_locations_page_and_filtering(): void
@@ -57,7 +57,7 @@ class FrontendAndApiTest extends TestCase
         $response = $this->get(route('frontend.doctors'));
         $response->assertStatus(200);
         $response->assertSee('Dr. Rajesh Sharma');
-        $response->assertSee('View Profile');
+        $response->assertSee(__('View Profile'));
         $response->assertSee('₹1,200.00');
     }
 
@@ -67,9 +67,9 @@ class FrontendAndApiTest extends TestCase
         $response = $this->get(route('frontend.doctor_profile', $doctor));
         $response->assertStatus(200);
         $response->assertSee($doctor->doctor_name);
-        $response->assertSee('Quick Appointment');
-        $response->assertSee('Customer Testimonials');
-        $response->assertSee('Write a Review');
+        $response->assertSee(__('Quick Appointment'));
+        $response->assertSee(__('Customer Testimonials'));
+        $response->assertSee(__('Write a Review'));
     }
 
     public function test_customer_can_submit_testimonial_for_doctor(): void
@@ -99,7 +99,7 @@ class FrontendAndApiTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Apollo Executive Whole Body Health Checkup');
         $response->assertSee('₹4,999.00');
-        $response->assertSee('Book Now');
+        $response->assertSee(__('Book Now'));
     }
 
     public function test_patient_can_book_health_package(): void
@@ -129,14 +129,16 @@ class FrontendAndApiTest extends TestCase
 
     public function test_multi_language_switcher_updates_locale(): void
     {
+        // Exclusively Hindi (hi) and Marathi (mr)
         $response = $this->get(route('portal.set_language', 'hi'));
         $response->assertSessionHas('app_locale', 'hi');
 
-        $response = $this->get(route('portal.set_language', 'bn'));
-        $response->assertSessionHas('app_locale', 'bn');
-
         $response = $this->get(route('portal.set_language', 'mr'));
         $response->assertSessionHas('app_locale', 'mr');
+
+        // Other locales (such as Bengali or English) are restricted
+        $this->get(route('portal.set_language', 'bn'));
+        expect(session('app_locale'))->toBe('mr');
     }
 
     public function test_admin_can_manage_health_packages_in_backend(): void

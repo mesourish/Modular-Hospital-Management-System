@@ -22,9 +22,9 @@ test('public customer frontend renders hospital branding and doctor opd charts',
 
     $response->assertStatus(200);
     $response->assertSee('Apollo Hospitals Healthcare Network');
-    $response->assertSee('Instant OPD Token Booking');
-    $response->assertSee('Live Token Status Tracker');
-    $response->assertSee('Doctor OPD Duty Schedules & Fees', false);
+    $response->assertSee(__('Quick Appointment'));
+    $response->assertSee(__('Live Token Status Tracker'));
+    $response->assertSee(__('Doctor OPD Duty Schedules & Fees'), false);
     $response->assertSee('Dr. Ananya Sen');
     $response->assertSee('1066');
 });
@@ -74,7 +74,7 @@ test('patient can track live token queue by mobile number', function () {
     $response = $this->get("/?track_query={$patientPhone}");
 
     $response->assertStatus(200);
-    $response->assertSee('Matching Tokens');
+    $response->assertSee(__('Matching Tokens'));
     $response->assertSee($appointment->patient->name);
     $response->assertSee("Token #{$appointment->token_number}");
 });
@@ -210,4 +210,54 @@ test('clinical staff without admin rights cannot access settings or organization
         ->withSession(['active_hospital_id' => $apollo->id])
         ->get('/superadmin/organization-chart');
     $responseOrgChart->assertStatus(302);
+});
+
+test('public customer portal restricts languages exclusively to hindi and marathi', function () {
+    // 1. Setting Hindi succeeds
+    $resHi = $this->get('/set-language/hi');
+    $resHi->assertSessionHas('app_locale', 'hi');
+
+    // 2. Setting Marathi succeeds
+    $resMr = $this->get('/set-language/mr');
+    $resMr->assertSessionHas('app_locale', 'mr');
+
+    // 3. Other languages (English, Bengali, etc.) are restricted and rejected
+    $this->get('/set-language/bn');
+    expect(session('app_locale'))->toBe('mr');
+
+    $this->get('/set-language/en');
+    expect(session('app_locale'))->toBe('mr');
+});
+
+test('real-time opd token tracker returns json payload with live queue status', function () {
+    $apollo = Hospital::where('code', 'ACH-01')->first();
+    TenantManager::setActiveHospital($apollo);
+
+    $appointment = Appointment::where('hospital_id', $apollo->id)->with('patient')->first();
+    expect($appointment)->not->toBeNull();
+
+    // Query by token number via AJAX
+    $response = $this->getJson("/portal/track-token?query={$appointment->token_number}");
+
+    $response->assertStatus(200);
+    $response->assertJson([
+        'success' => true,
+    ]);
+    $response->assertJsonFragment([
+        'token_number' => $appointment->token_number,
+        'patient_name' => $appointment->patient->name,
+    ]);
+});
+
+test('searchable doctor directory displays opd schedule and consultation fee in rupees', function () {
+    $apollo = Hospital::where('code', 'ACH-01')->first();
+    TenantManager::setActiveHospital($apollo);
+
+    $response = $this->get('/doctors?search=Ananya');
+
+    $response->assertStatus(200);
+    $response->assertSee('Dr. Ananya Sen');
+    $response->assertSee('₹');
+    $response->assertSee(__('Consultation Fee'));
+    $response->assertSee(__('Available Days'));
 });

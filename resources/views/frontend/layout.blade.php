@@ -169,24 +169,21 @@
                     <i class="bx bx-time-five text-info me-1"></i> {{ $settings['opd_hours'] ?? 'Mon - Sat: 08:00 AM - 08:00 PM' }}
                 </span>
                 
-                <!-- Language Switcher -->
+                <!-- Language Switcher (Hindi & Marathi Exclusive) -->
                 <div class="dropdown">
                     <button class="btn btn-sm lang-dropdown-btn dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bx bx-globe font-size-14 text-warning"></i>
                         <span>
-                            @switch(app()->getLocale())
-                                @case('hi') हिन्दी (HI) @break
-                                @case('mr') मराठी (MR) @break
-                                @case('bn') বাংলা (BN) @break
-                                @default English (EN)
-                            @endswitch
+                            @if(app()->getLocale() == 'mr')
+                                🚩 मराठी (MR)
+                            @else
+                                🇮🇳 हिन्दी (HI)
+                            @endif
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 font-size-13 py-1">
-                        <li><a class="dropdown-item py-1 {{ app()->getLocale() == 'en' ? 'active' : '' }}" href="{{ route('portal.set_language', 'en') }}">🇬🇧 English (English)</a></li>
                         <li><a class="dropdown-item py-1 {{ app()->getLocale() == 'hi' ? 'active' : '' }}" href="{{ route('portal.set_language', 'hi') }}">🇮🇳 हिन्दी (Hindi)</a></li>
                         <li><a class="dropdown-item py-1 {{ app()->getLocale() == 'mr' ? 'active' : '' }}" href="{{ route('portal.set_language', 'mr') }}">🚩 मराठी (Marathi)</a></li>
-                        <li><a class="dropdown-item py-1 {{ app()->getLocale() == 'bn' ? 'active' : '' }}" href="{{ route('portal.set_language', 'bn') }}">🇧🇩 বাংলা (Bengali)</a></li>
                     </ul>
                 </div>
             </div>
