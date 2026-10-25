@@ -1,10 +1,12 @@
 # 🏥 OpenHMS: Modular Hospital Management System & Multi-Tenant Healthcare Network
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net)
-[![Laravel Framework](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![Latest Release](https://img.shields.io/github/v/release/mesourish/Modular-Hospital-Management-System?color=blue)](https://github.com/mesourish/Modular-Hospital-Management-System/releases)
+[![OpenHMS CI](https://github.com/mesourish/Modular-Hospital-Management-System/actions/workflows/ci.yml/badge.svg)](https://github.com/mesourish/Modular-Hospital-Management-System/actions/workflows/ci.yml)
+[![PHP Version](https://img.shields.io/badge/PHP-8.3%2B-blue.svg)](https://php.net)
+[![Laravel Framework](https://img.shields.io/badge/Laravel-13.x-red.svg)](https://laravel.com)
 [![Database](https://img.shields.io/badge/Database-MySQL%20%7C%20SQLite%20%7C%20PostgreSQL-orange.svg)](https://www.mysql.com)
-[![Pest Tests](https://img.shields.io/badge/Tests-95%20Passing%20(100%25)-brightgreen.svg)](https://pestphp.com)
+[![Pest Tests](https://img.shields.io/badge/Tests-98%20Passing%20(100%25)-brightgreen.svg)](https://pestphp.com)
 [![Code Style](https://img.shields.io/badge/Code%20Style-Laravel%20Pint-black.svg)](https://laravel.com/docs/pint)
 [![Healthcare Standards](https://img.shields.io/badge/Compliance-NABH%20%7C%20ABDM%20%7C%20HL7%20Ready-purple.svg)](#healthcare-standards--data-localization)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4%EF%B8%8F%20For%20Everyone-blueviolet.svg)](#contributing--open-source-community)

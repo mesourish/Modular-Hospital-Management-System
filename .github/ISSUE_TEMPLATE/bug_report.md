@@ -38,6 +38,6 @@ If applicable, add screenshots or stack trace logs to help explain your problem.
 
 **Environment:**
 - OS: [e.g. macOS / Ubuntu / Windows]
-- PHP Version: [e.g. 8.2, 8.3]
+- PHP Version: [e.g. 8.3, 8.4]
 - Database: [e.g. MySQL 8.0, SQLite]
 - Browser: [e.g. Chrome, Firefox]
